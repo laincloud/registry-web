@@ -8,16 +8,15 @@ module.exports = {
     },
     module: {
         rules: [{
-                test: /\.elm$/,
-                exclude: [/elm-stuff/, /node_modules/],
+                test: /\.vue$/,
+                exclude: [/node_modules/],
                 use: {
-                    loader: 'elm-webpack-loader',
-                    options: {}
+                    loader: 'vue-loader',
                 }
             },
             {
                 test: /\.scss$/,
-                exclude: [/elm-stuff/, /node_modules/],
+                exclude: [/node_modules/],
                 use: [{
                     loader: 'style-loader'
                 }, {
@@ -25,7 +24,6 @@ module.exports = {
                 }, {
                     loader: 'sass-loader'
                 }]
-
             }
         ]
     },

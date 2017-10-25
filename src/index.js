@@ -1,9 +1,10 @@
-'use strict';
+import App from './App.vue';
+import './style.scss';
 
-import Elm from './Main.elm';
-import './main.scss';
+Vue.use(VueMaterial);
 
-window.mdc.autoInit();
-let drawer = new mdc.drawer.MDCTemporaryDrawer(document.querySelector('.mdc-temporary-drawer'));
-document.querySelector('.menu').addEventListener('click', () => drawer.open = true);
-Elm.Main.embed(document.getElementById('main'));
+new Vue({
+    el: '#app',
+    template: '<App/>',
+    components: { App }
+});
