@@ -2,10 +2,17 @@ module Main exposing (..)
 
 import Html exposing (Html, button, div, text)
 import Html.Events exposing (onClick)
+import Json.Decode exposing (Decoder)
+import Http exposing (Error)
 
 
 main =
-    Html.beginnerProgram { model = 0, view = view, update = update }
+    Html.program
+        { init = init
+        , view = view
+        , update = update
+        , subscriptions = subscriptions
+        }
 
 
 
@@ -13,12 +20,51 @@ main =
 
 
 type alias Model =
-    Int
+    { images : List Image
+    , error : Maybe String
+    }
 
 
-model : Model
-model =
-    0
+type alias Image =
+    { name : String
+    , tag : String
+    }
+
+
+init : ( Model, Cmd Msg )
+init =
+    ( Model [] Nothing, Cmd.none )
+
+
+getImages : Cmd Msg
+getImages =
+    sendGet LoadImages url decoder
+
+
+sendGet : (Result Error a -> msg) -> String -> Decoder a -> Cmd msg
+sendGet msg url decoder =
+    Http.get url decoder
+        |> Http.send msg
+
+
+decoder : Decoder (List Image)
+decoder =
+    Json.Decode.at [ "repositories" ] Json.Decode.list imageDecoder
+
+
+imageDecoder : Decoder Image
+imageDecoder =
+    Json.Decode.map toImage
+
+
+toImage : String -> Image
+toImage name =
+    Image name "latest"
+
+
+url : String
+url =
+    "http://registry.yxapp.xyz/v2/_catalog"
 
 
 
@@ -26,18 +72,19 @@ model =
 
 
 type Msg
-    = Increment
-    | Decrement
+    = LoadImages (Result Http.Error (List Image))
 
 
 update : Msg -> Model -> Model
 update msg model =
     case msg of
-        Increment ->
-            model + 1
+        LoadImages images ->
+            case images of
+                Ok images ->
+                    ( { model | images = images }, Cmd.none )
 
-        Decrement ->
-            model - 1
+                Err err ->
+                    Debug.crash "" err
 
 
 

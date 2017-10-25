@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html class="mdc-typography">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>
+        <%= htmlWebpackPlugin.options.title %>
+    </title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto+Mono">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css">
+</head>
+
+<body class="mdc-typography">
+    <div class="mdc-toolbar">
+        <div class="mdc-toolbar__row">
+            <section class="mdc-toolbar__section mdc-toolbar__section--align-start">
+                <button class="menu material-icons mdc-toolbar__menu-icon">menu</button>
+                <span class="mdc-toolbar__title"><%= htmlWebpackPlugin.options.title %></span>
+            </section>
+        </div>
+    </div>
+    <aside class="mdc-temporary-drawer mdc-typography">
+        <nav class="mdc-temporary-drawer__drawer">
+            <header class="mdc-temporary-drawer__header">
+                <div class="mdc-temporary-drawer__header-content">
+                    <%= htmlWebpackPlugin.options.title %>
+                </div>
+            </header>
+            <nav class="mdc-temporary-drawer__content mdc-list">
+                <a class="mdc-list-item mdc-temporary-drawer--selected" href="#">
+                    <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">inbox</i>Inbox
+                </a>
+                <a class="mdc-list-item mdc-temporary-drawer--selected" href="#">
+                    <i class="material-icons mdc-list-item__start-detail" aria-hidden="true">star</i>Star
+                </a>
+            </nav>
+        </nav>
+    </aside>
+
+    <div id="main"></div>
+    <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+</body>
+
+</html>
