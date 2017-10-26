@@ -15,6 +15,16 @@ module.exports = {
                 }
             },
             {
+                test: /\.ico$/,
+                exclude: [/node_modules/],
+                use: {
+                    loader: 'file-loader',
+                    options: {
+                        name: '[name].[ext]'
+                    }
+                }
+            },
+            {
                 test: /\.scss$/,
                 exclude: [/node_modules/],
                 use: [{
