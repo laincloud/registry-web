@@ -12,7 +12,7 @@ const router = new VueRouter({
             component: Repos
         },
         {
-            path: '/library/:repoName',
+            path: '/repos/:repoName',
             component: Repo
         }
     ]

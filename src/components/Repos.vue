@@ -1,11 +1,10 @@
 <template>
   <div>
-    <md-card v-for="repo in repos"
-             :key="repo">
+    <md-card v-for="repo in repos" :key="repo" md-with-hover>
       <md-card-header>
         <md-card-header-text>
           <div class="md-title">
-            <router-link :to="'/library/' + repo">registry.yxapp.xyz/library/{{ repo }}</router-link>
+            <router-link :to="'/repos/' + repo.replace('/', '_')">registry.yxapp.xyz/{{ repo }}</router-link>
           </div>
         </md-card-header-text>
       </md-card-header>
@@ -21,12 +20,12 @@ export default {
         }
     },
     created () {
-        axios.get("http://registry.yxapp.xyz/v2/_catalog?last=libana")
+        axios.get('http://registry.yxapp.xyz/v2/_catalog?last=libana')
             .then(response => {
                 let repos = response.data['repositories'];
                 for (let i = 0; i < repos.length; i++) {
                     if (repos[i].startsWith('library')) {
-                        this.repos.push(repos[i].replace('library/', ''));
+                        this.repos.push(repos[i]);
                     }
                 }
             })

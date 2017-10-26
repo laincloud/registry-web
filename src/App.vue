@@ -2,7 +2,9 @@
   <div>
     <md-toolbar>
       <div class="md-toolbar-container">
-        <h2 class="md-title" style="flex: 1;">Registry Web</h2>
+        <h2 class="md-title" style="flex: 1;">
+          <router-link to="/">Registry Web</router-link>
+        </h2>
       </div>
     </md-toolbar>
     <main>
