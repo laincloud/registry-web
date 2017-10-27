@@ -1,33 +1,38 @@
 <template>
   <div>
-    <md-card>
-      <md-card-area>
-        <md-card-header>
-          <md-card-header-text>
-            <div class="md-title">
-              registry.yxapp.xyz/{{ repoName }}
-            </div>
-          </md-card-header-text>
-        </md-card-header>
-      </md-card-area>
+    <md-toolbar>
+      <h2 class="md-title" style="flex: 1;">基础镜像 - {{ repoName }}</h2>
 
-      <md-card-content>
-        <md-tabs class="md-transparent">
-          <md-tab id="tags" md-label="Tags">
-            <ul>
-              <li v-for="tag in tags" :key="tag">
-                <span class="tag">{{ tag }}</span>
-              </li>
-            </ul>
-          </md-tab>
-          <md-tab id="dockerfile" md-label="Dockerfile">
-            <div class="code-block">
-              <pre><code>{{ dockerfile }}</code></pre>
-            </div>
-          </md-tab>
-        </md-tabs>
-      </md-card-content>
-    </md-card>
+      <router-link tag="md-button" to="/" class="md-icon-button">
+        <md-icon>home</md-icon>
+      </router-link>
+    </md-toolbar>
+
+    <main>
+      <div>
+        <md-card v-for="tag in tags" :key="tag.id">
+          <md-card-area>
+            <md-card-header>
+              <md-card-header-text>
+                <div class="md-title">
+                  registry.yxapp.xyz/{{ repoName }}:{{ tag.id }}
+                </div>
+              </md-card-header-text>
+            </md-card-header>
+          </md-card-area>
+
+          <md-card-content>
+            <md-tabs class="md-transparent">
+              <md-tab id="dockerfile" md-label="Dockerfile">
+                <div class="code-block">
+                  <pre><code class="hljs dockerfile">{{ tag.dockerfile }}</code></pre>
+                </div>
+              </md-tab>
+            </md-tabs>
+          </md-card-content>
+        </md-card>
+      </div>
+    </main>
   </div>
 </template>
 
@@ -37,7 +42,6 @@ export default {
         return {
             repoName: this.$route.params.repoName.replace('_', '/'),
             tags: [],
-            dockerfile: '',
         }
     },
     created () {
@@ -46,22 +50,23 @@ export default {
             .then(response => {
                 let tags = response.data['tags'];
                 for (let i = 0; i < tags.length; i++) {
-                    this.tags.push(tags[i]);
+                    url = 'https://raw.githubusercontent.com/laincloud/dockerfiles/master/';
+                    url += this.repoName.replace('library/', '');
+                    url += '/';
+                    url += tags[i];
+                    url += '/Dockerfile';
+                    console.info(url);
+                    axios.get(url)
+                        .then(response => {
+                            this.tags.push({
+                                'id': tags[i],
+                                'dockerfile': response.data
+                            });
+                        })
+                        .catch(e => {
+                            console.error(e);
+                        });
                 }
-
-                url = 'https://raw.githubusercontent.com/laincloud/dockerfiles/master/';
-                url += this.repoName.replace('library/', '');
-                url += '/';
-                url += tags[0];
-                url += '/Dockerfile';
-                console.info(url);
-                axios.get(url)
-                    .then(response => {
-                        this.dockerfile = response.data;
-                    })
-                    .catch(e => {
-                        console.error(e);
-                    });
             })
             .catch(e => {
                 console.error(e);
@@ -70,18 +75,28 @@ export default {
 };
 </script>
 
-<style lang="scss" scoped>
+<style scoped>
+  main {
+    width: 80%;
+    margin-top: 10em;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 8em;
+  }
+
+  .md-card {
+    margin-top: 2em;
+    margin-bottom: 2em;
+    padding-left: 1em;
+    padding-right: 1em;
+    padding-top: 10px;
+  }
+
   .code-block {
     background-color: #f4f4f4;
-    color: #455A64;
     padding-left: 1.5em;
     padding-right: 1.5em;
     padding-top: 0.5em;
     padding-bottom: 0.5em;
-
-    code {
-        background: none;
-        color: #000000;
-    }
   }
 </style>
