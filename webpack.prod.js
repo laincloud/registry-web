@@ -8,7 +8,7 @@ module.exports = merge(common, {
         new UglifyJSPlugin(),
         new webpack.DefinePlugin({
             'process.env': {
-                'NODE_ENV': JOSN.stringify('production')
+                'NODE_ENV': JSON.stringify('production')
             }
         })
     ]
