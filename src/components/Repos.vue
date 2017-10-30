@@ -4,7 +4,9 @@
       <h2 class="md-title" style="flex: 1;">基础镜像列表</h2>
     </md-toolbar>
 
-    <main>
+    <main v-infinite-scroll="loadMore"
+          infinite-scroll-disabled="isScrollDisabled"
+          infinite-scroll-distance="10">
       <div>
         <md-card v-for="repo in repos" :key="repo" md-with-hover>
           <md-card-header>
@@ -14,10 +16,12 @@
               </div>
             </md-card-header-text>
 
-            <md-actions>
+            <md-card-actions>
               <router-link tag="md-button" class="md-raised md-primary"
-                          :to="'/repos/' + repo.replace('/', '_')">详情</router-link>
-            </md-actions>
+                           :to="'/repos/' + repo.replace('/', '_')">
+                详情
+              </router-link>
+            </md-card-actions>
           </md-card-header>
         </md-card>
       </div>
@@ -30,29 +34,51 @@ export default {
     data () {
         return {
             repos: [],
-            last: '',
+            last: REGISTRY_ORIGINAL_LAST,
+            isAllLoaded: false,
+            isScrollDisabled: false
         }
     },
     created () {
-        axios.get('http://registry.yxapp.xyz/v2/_catalog?last=libana&n=2')
-            .then(response => {
-                let repos = response.data['repositories'];
-                for (let i = 0; i < repos.length; i++) {
-                    if (repos[i].startsWith('library')) {
-                        this.repos.push(repos[i]);
+        this.isScrollDisabled = true;
+        this.getRepos();
+    },
+    methods: {
+        loadMore: function () {
+            this.isScrollDisabled = true;
+            this.getRepos();
+        },
+        getRepos: function () {
+            console.info("last", this.last, "isAllLoaded", this.isAllLoaded, "isScrollDisabled", this.isScrollDisabled);
+            let url = REGISTRY_URL + '/_catalog?last=' + this.last;
+            url += '&n=' + REGISTRY_N;
+            axios.get(url)
+                .then(response => {
+                    let repos = response.data[REPOS_KEY];
+                    if (repos.length < 1) {
+                        this.isAllLoaded = true;
+                        return;
                     }
-                }
 
-                if (repos.length > 0) {
-                    let lastRepo = repos[repos.length - 1];
-                    if (lastRepo.startsWith('library')) {
-                        this.last = lastRepo;
+                    for (let i = 0; i < repos.length; i++) {
+                        if (!repos[i].startsWith(LIBRARY_PREFIX)) {
+                            this.isAllLoaded = true;
+                            break;
+                        }
+
+                        this.repos.push(repos[i]);
+
+                        if (i === (repos.length - 1)) {
+                            this.last = repos[i];
+                        }
                     }
-                }
-            })
-            .catch(e => {
-                console.error(e);
-            });
+                    this.isScrollDisabled = this.isAllLoaded;
+                })
+                .catch(e => {
+                    this.isLoading = false;
+                    console.error(e);
+                });
+        }
     }
 };
 </script>
@@ -60,15 +86,15 @@ export default {
 <style scoped>
   main {
     width: 80%;
-    margin-top: 10em;
+    margin-top: 8em;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 8em;
   }
 
   .md-card {
-    margin-top: 2em;
-    margin-bottom: 2em;
+    margin-top: 4em;
+    margin-bottom: 4em;
     padding-left: 1em;
     padding-right: 1em;
     padding-top: 10px;

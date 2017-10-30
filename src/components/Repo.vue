@@ -78,15 +78,15 @@ export default {
 <style scoped>
   main {
     width: 80%;
-    margin-top: 10em;
+    margin-top: 8em;
     margin-left: auto;
     margin-right: auto;
     margin-bottom: 8em;
   }
 
   .md-card {
-    margin-top: 2em;
-    margin-bottom: 2em;
+    margin-top: 4em;
+    margin-bottom: 4em;
     padding-left: 1em;
     padding-right: 1em;
     padding-top: 10px;
