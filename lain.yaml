@@ -3,12 +3,13 @@ appname: registry-web
 build:
   base: node:8.8
   prepare:
-    version: 201710301601
+    version: 201710301602
     script:
       - mkdir -p /lain/build
       - cp -rf . /lain/build
       - cd /lain/build && yarn install
   script:
+    - cp -rf . /lain/build
     - cd /lain/build && yarn build
 
 release:
