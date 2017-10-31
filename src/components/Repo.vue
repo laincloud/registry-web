@@ -15,7 +15,7 @@
             <md-card-header>
               <md-card-header-text>
                 <div class="md-title">
-                  registry.yxapp.xyz/{{ repoName }}:{{ tag.id }}
+                  {{ registryHost }}/{{ repoName }}:{{ tag.id }}
                 </div>
               </md-card-header-text>
             </md-card-header>
@@ -37,42 +37,45 @@
 </template>
 
 <script>
-export default {
-    data () {
-        return {
-            repoName: this.$route.params.repoName.replace('_', '/'),
-            tags: [],
-        }
-    },
-    created () {
-        let url = 'http://registry.yxapp.xyz/v2/' + this.repoName + '/tags/list';
-        axios.get(url)
-            .then(response => {
-                let tags = response.data['tags'];
-                for (let i = 0; i < tags.length; i++) {
-                    url = 'https://raw.githubusercontent.com/laincloud/dockerfiles/master/';
-                    url += this.repoName.replace('library/', '');
-                    url += '/';
-                    url += tags[i];
-                    url += '/Dockerfile';
-                    console.info(url);
-                    axios.get(url)
-                        .then(response => {
-                            this.tags.push({
-                                'id': tags[i],
-                                'dockerfile': response.data
-                            });
-                        })
-                        .catch(e => {
-                            console.error(e);
-                        });
-                }
-            })
-            .catch(e => {
-                console.error(e);
-            });
-    }
-};
+  import axios from 'axios';
+
+  export default {
+      data () {
+          return {
+              registryHost: REGISTRY_HOST,
+              repoName: this.$route.params.repoName.replace('_', '/'),
+              tags: [],
+          }
+      },
+      created () {
+          let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/' + this.repoName + '/tags/list';
+          axios.get(url)
+              .then(response => {
+                  let tags = response.data['tags'];
+                  for (let i = 0; i < tags.length; i++) {
+                      url = DOCKERFILES_URL;
+                      url += this.repoName.replace('library', '');
+                      url += '/';
+                      url += tags[i];
+                      url += '/Dockerfile';
+                      console.info(url);
+                      axios.get(url)
+                          .then(response => {
+                              this.tags.push({
+                                  'id': tags[i],
+                                  'dockerfile': response.data
+                              });
+                          })
+                          .catch(e => {
+                              console.error(e);
+                          });
+                  }
+              })
+              .catch(e => {
+                  console.error(e);
+              });
+      }
+  };
 </script>
 
 <style scoped>

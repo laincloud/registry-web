@@ -16,6 +16,10 @@ module.exports = {
                 }
             },
             {
+                test: /\.css$/,
+                use: ['style-loader', 'css-loader']
+            },
+            {
                 test: /\.ico$/,
                 exclude: [/node_modules/],
                 use: {
@@ -43,11 +47,12 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
+            DOCKERFILES_URL: JSON.stringify('https://raw.githubusercontent.com/laincloud/dockerfiles/master'),
             REPOS_KEY: JSON.stringify('repositories'),
             LIBRARY_PREFIX: JSON.stringify('library'),
-            REGISTRY_N: JSON.stringify(2),
-            REGISTRY_ORIGINAL_LAST: JSON.stringify('libana'),
-            REGISTRY_URL: JSON.stringify('http://registry.yxapp.xyz/v2')
+            REGISTRY_N: JSON.stringify(100),
+            REGISTRY_SCHEME: JSON.stringify('http'),
+            REGISTRY_HOST: JSON.stringify('registry.yxapp.xyz')
         }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({

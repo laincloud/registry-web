@@ -12,7 +12,7 @@
           <md-card-header>
             <md-card-header-text>
               <div class="md-title">
-                registry.yxapp.xyz/{{ repo }}
+                {{ registryHost }}/{{ repo }}
               </div>
             </md-card-header-text>
 
@@ -30,57 +30,59 @@
 </template>
 
 <script>
-export default {
-    data () {
-        return {
-            repos: [],
-            last: REGISTRY_ORIGINAL_LAST,
-            isAllLoaded: false,
-            isScrollDisabled: false
-        }
-    },
-    created () {
-        this.isScrollDisabled = true;
-        this.getRepos();
-    },
-    methods: {
-        loadMore: function () {
-            this.isScrollDisabled = true;
-            this.getRepos();
-        },
-        getRepos: function () {
-            console.info("last", this.last, "isAllLoaded", this.isAllLoaded, "isScrollDisabled", this.isScrollDisabled);
-            let url = REGISTRY_URL + '/_catalog?last=' + this.last;
-            url += '&n=' + REGISTRY_N;
-            axios.get(url)
-                .then(response => {
-                    let repos = response.data[REPOS_KEY];
-                    if (repos.length < 1) {
-                        this.isAllLoaded = true;
-                        return;
-                    }
+  import axios from 'axios';
 
-                    for (let i = 0; i < repos.length; i++) {
-                        if (!repos[i].startsWith(LIBRARY_PREFIX)) {
-                            this.isAllLoaded = true;
-                            break;
-                        }
+  export default {
+      data () {
+          return {
+              registryHost: REGISTRY_HOST,
+              repos: [],
+              last: LIBRARY_PREFIX,
+              isAllLoaded: false,
+              isScrollDisabled: false
+          }
+      },
+      created () {
+          this.isScrollDisabled = true;
+          this.getRepos();
+      },
+      methods: {
+          loadMore: function () {
+              this.isScrollDisabled = true;
+              this.getRepos();
+          },
+          getRepos: function () {
+              let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/_catalog?last=' + this.last;
+              url += '&n=' + REGISTRY_N;
+              axios.get(url)
+                  .then(response => {
+                      let repos = response.data[REPOS_KEY];
+                      if (repos.length < 1) {
+                          this.isAllLoaded = true;
+                          return;
+                      }
 
-                        this.repos.push(repos[i]);
+                      for (let i = 0; i < repos.length; i++) {
+                          if (!repos[i].startsWith(LIBRARY_PREFIX)) {
+                              this.isAllLoaded = true;
+                              break;
+                          }
 
-                        if (i === (repos.length - 1)) {
-                            this.last = repos[i];
-                        }
-                    }
-                    this.isScrollDisabled = this.isAllLoaded;
-                })
-                .catch(e => {
-                    this.isLoading = false;
-                    console.error(e);
-                });
-        }
-    }
-};
+                          this.repos.push(repos[i]);
+
+                          if (i === (repos.length - 1)) {
+                              this.last = repos[i];
+                          }
+                      }
+                      this.isScrollDisabled = this.isAllLoaded;
+                  })
+                  .catch(e => {
+                      this.isLoading = false;
+                      console.error(e);
+                  });
+          }
+      }
+  };
 </script>
 
 <style scoped>
