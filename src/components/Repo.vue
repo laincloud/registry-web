@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="container">
     <md-toolbar>
       <h2 class="md-title" style="flex: 1;">基础镜像 - {{ repoName }}</h2>
 
@@ -33,6 +33,8 @@
         </md-card>
       </div>
     </main>
+
+    <md-progress md-indeterminate v-if="isLoading"></md-progress>
   </div>
 </template>
 
@@ -42,13 +44,16 @@
   export default {
       data () {
           return {
+              isLoading: false,
               registryHost: REGISTRY_HOST,
               repoName: this.$route.params.repoName.replace('_', '/'),
               tags: [],
           }
       },
       created () {
+          this.isLoading = true;
           let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/' + this.repoName + '/tags/list';
+          console.info('url', url);
           axios.get(url)
               .then(response => {
                   let tags = response.data['tags'];
@@ -58,20 +63,25 @@
                       url += '/';
                       url += tags[i];
                       url += '/Dockerfile';
-                      console.info(url);
+                      console.info('url', url);
                       axios.get(url)
                           .then(response => {
                               this.tags.push({
                                   'id': tags[i],
                                   'dockerfile': response.data
                               });
+                              if (i === (tags.length - 1)) {
+                                  this.isLoading = false;
+                              }
                           })
                           .catch(e => {
+                              this.isLoading = false;
                               console.error(e);
                           });
                   }
               })
               .catch(e => {
+                  this.isLoading = false;
                   console.error(e);
               });
       }
@@ -79,12 +89,21 @@
 </script>
 
 <style scoped>
+  .container {
+    min-height: 100%;
+  }
+
+  .md-progress {
+      position: absolute;
+      bottom: 0;
+  }
+
   main {
     width: 80%;
     margin-top: 8em;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 8em;
+    padding-bottom: 4em;
   }
 
   .md-card {

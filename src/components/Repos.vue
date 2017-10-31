@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div class="container">
     <md-toolbar>
       <h2 class="md-title" style="flex: 1;">基础镜像列表</h2>
     </md-toolbar>
 
-    <main v-infinite-scroll="loadMore"
+    <main v-infinite-scroll="getRepos"
           infinite-scroll-disabled="isScrollDisabled"
           infinite-scroll-distance="10">
       <div>
@@ -26,6 +26,8 @@
         </md-card>
       </div>
     </main>
+
+    <md-progress md-indeterminate v-if="isLoading"></md-progress>
   </div>
 </template>
 
@@ -35,30 +37,30 @@
   export default {
       data () {
           return {
-              registryHost: REGISTRY_HOST,
-              repos: [],
-              last: LIBRARY_PREFIX,
               isAllLoaded: false,
-              isScrollDisabled: false
+              isLoading: false,
+              isScrollDisabled: false,
+              last: LIBRARY_PREFIX,
+              registryHost: REGISTRY_HOST,
+              repos: []
           }
       },
       created () {
-          this.isScrollDisabled = true;
           this.getRepos();
       },
       methods: {
-          loadMore: function () {
-              this.isScrollDisabled = true;
-              this.getRepos();
-          },
           getRepos: function () {
+              this.isLoading = true;
+              this.isScrollDisabled = true;
               let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/_catalog?last=' + this.last;
               url += '&n=' + REGISTRY_N;
+              console.info('url', url);
               axios.get(url)
                   .then(response => {
                       let repos = response.data[REPOS_KEY];
                       if (repos.length < 1) {
                           this.isAllLoaded = true;
+                          this.isLoading = false;
                           return;
                       }
 
@@ -74,6 +76,7 @@
                               this.last = repos[i];
                           }
                       }
+                      this.isLoading = false;
                       this.isScrollDisabled = this.isAllLoaded;
                   })
                   .catch(e => {
@@ -86,12 +89,21 @@
 </script>
 
 <style scoped>
+  .container {
+    min-height: 100%;
+  }
+
+  .md-progress {
+      position: absolute;
+      bottom: 0;
+  }
+
   main {
     width: 80%;
     margin-top: 8em;
     margin-left: auto;
     margin-right: auto;
-    margin-bottom: 8em;
+    padding-bottom: 4em;
   }
 
   .md-card {
