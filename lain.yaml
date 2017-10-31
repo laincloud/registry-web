@@ -3,7 +3,7 @@ appname: registry-web
 build:
   base: node:8.8
   prepare:
-    version: 201710301602
+    version: 201710301603
     script:
       - mkdir -p /lain/build
       - cp -rf . /lain/build
