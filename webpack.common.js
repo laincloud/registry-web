@@ -47,12 +47,16 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            DOCKERFILES_URL: JSON.stringify('https://raw.githubusercontent.com/laincloud/dockerfiles/master'),
-            REPOS_KEY: JSON.stringify('repositories'),
+            GITHUB_API_URL: JSON.stringify('https://api.github.com'),
+            GITHUB_RAW_CONTENT_URL: JSON.stringify('https://raw.githubusercontent.com'),
+            GITHUB_REPO: JSON.stringify('dockerfiles'),
+            GITHUB_USER: JSON.stringify('laincloud'),
+            GITHUB_BRANCH: JSON.stringify('master'),
             LIBRARY_PREFIX: JSON.stringify('library'),
             REGISTRY_N: JSON.stringify(100),
             REGISTRY_SCHEME: JSON.stringify('http'),
-            REGISTRY_HOST: JSON.stringify('registry.yxapp.xyz')
+            REGISTRY_HOST: JSON.stringify('registry.yxapp.xyz'),
+            REPOS_KEY: JSON.stringify('repositories')
         }),
         new CleanWebpackPlugin(['dist']),
         new HtmlWebpackPlugin({
