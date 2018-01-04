@@ -37,7 +37,7 @@
   export default {
       data () {
           return {
-              dockerfileContexts: []
+              dockerfileContexts: [],
               isLoading: false,
               registryHost: REGISTRY_HOST,
           }
