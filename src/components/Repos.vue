@@ -37,52 +37,58 @@
   export default {
       data () {
           return {
-              isAllLoaded: false,
+              dockerfileContexts: []
               isLoading: false,
-              isScrollDisabled: false,
-              last: LIBRARY_PREFIX,
               registryHost: REGISTRY_HOST,
-              repos: []
           }
       },
       created () {
-          this.getRepos();
+          this.getDockerfileContexts();
       },
       methods: {
-          getRepos: function () {
+          getDockerfileContexts: function () {
+              this.dockerfileContexts = [];
               this.isLoading = true;
-              this.isScrollDisabled = true;
-              let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/_catalog?last=' + this.last;
-              url += '&n=' + REGISTRY_N;
+              let url = GITHUB_API_URL + '/repos/' + GITHUB_USER + '/' + GITHUB_REPO + '/git/trees/' + GITHUB_BRANCH;
+              let config = {
+                  'headers': {
+                      'Accept': 'application/vnd.github.v3+json'
+                  }
+              };
               console.info('url', url);
-              axios.get(url)
-                  .then(response => {
-                      let repos = response.data[REPOS_KEY];
-                      if (repos.length < 1) {
-                          this.isAllLoaded = true;
-                          this.isLoading = false;
-                          return;
-                      }
-
-                      for (let i = 0; i < repos.length; i++) {
-                          if (!repos[i].startsWith(LIBRARY_PREFIX)) {
-                              this.isAllLoaded = true;
-                              break;
-                          }
-
-                          this.repos.push(repos[i]);
-
-                          if (i === (repos.length - 1)) {
-                              this.last = repos[i];
-                          }
-                      }
-                      this.isLoading = false;
-                      this.isScrollDisabled = this.isAllLoaded;
-                  })
-                  .catch(e => {
-                      this.isLoading = false;
-                      console.error(e);
+              axios.get(url, config).then(response => {
+                  let repos = [];
+                  response.data['tree'].forEach(item => {
+                      if (item['type'] === 'tree') {
+                          repos.push(item);
+                      };
                   });
+                  repos.forEach(repo => {
+                      axios.get(repo['url'], config).then(response => {
+                          let contexts = [];
+                          response.data['tree'].forEach(item => {
+                              if (item['type'] === 'tree') {
+                                  contexts.push({
+                                      'path': repo['path'] + '/' + item['path'],
+                                      'url': item['url'],
+                                  });
+                              };
+                          });
+                          contexts.forEach(context => {
+                              axios.get(context['url'], config).then(response => {
+                                  response.data['tree'].forEach(item => {
+                                    if (item['path'] === 'Dockerfile' && item['type'] === 'blob') {
+                                        this.dockerfileContexts.push(context['path']);
+                                    };
+                                  });
+                              });
+                          });
+                      });
+                  });
+              }).catch(e => {
+                  this.isLoading = false;
+                  console.error(e);
+              });
           }
       }
   };
@@ -99,7 +105,7 @@
   }
 
   main {
-    width: 80%;
+    width: 70%;
     margin-top: 8em;
     margin-left: auto;
     margin-right: auto;
