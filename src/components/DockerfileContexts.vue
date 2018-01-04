@@ -1,33 +1,35 @@
 <template>
-  <div class="container">
-    <md-toolbar>
-      <h2 class="md-title" style="flex: 1;">基础镜像列表</h2>
-    </md-toolbar>
+  <div class="page-container">
+    <md-app md-mode="reveal">
+      <md-app-toolbar class="md-primary">
+        <md-button class="md-icon-button" @click="menuVisible = !menuVisible">
+          <md-button>menu</md-button>
+        </md-button>
+        <span class="md-title">基础镜像列表</span>
+      </md-app-toolbar>
 
-    <main v-infinite-scroll="getRepos"
-          infinite-scroll-disabled="isScrollDisabled"
-          infinite-scroll-distance="10">
-      <div>
-        <md-card v-for="repo in repos" :key="repo" md-with-hover>
-          <md-card-header>
-            <md-card-header-text>
-              <div class="md-title">
-                {{ registryHost }}/{{ repo }}
-              </div>
-            </md-card-header-text>
+      <md-app-content>
+        <div>
+          <md-card v-for="context in dockerfileContexts" :key="context" md-with-hover>
+            <md-card-header>
+              <md-card-header-text>
+                <div class="md-title">
+                  {{ context }}
+                </div>
+              </md-card-header-text>
 
-            <md-card-actions>
-              <router-link tag="md-button" class="md-raised md-primary"
-                           :to="'/repos/' + repo.replace('/', '_')">
-                详情
-              </router-link>
-            </md-card-actions>
-          </md-card-header>
-        </md-card>
-      </div>
-    </main>
-
-    <md-progress md-indeterminate v-if="isLoading"></md-progress>
+              <md-card-actions>
+                <router-link tag="md-button" class="md-raised md-primary"
+                            :to="'/contexts/' + context.replace('/', '_')">
+                  详情
+                </router-link>
+              </md-card-actions>
+            </md-card-header>
+          </md-card>
+        </div>
+      </md-app-content>
+    </md-app>
+    <md-progress-bar md-mode="query" v-if="isLoading"></md-progress-bar>
   </div>
 </template>
 
@@ -39,6 +41,7 @@
           return {
               dockerfileContexts: [],
               isLoading: false,
+              menuVisible: false,
               registryHost: REGISTRY_HOST,
           }
       },
@@ -99,7 +102,7 @@
     min-height: 100%;
   }
 
-  .md-progress {
+  .md-progress-bar {
       position: absolute;
       bottom: 0;
   }

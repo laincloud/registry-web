@@ -1,29 +1,29 @@
 import Vue from 'vue';
-import VueMaterial from 'vue-material';
+import {MdApp, MdButton, MdCard} from 'vue-material/dist/components';
 import VueRouter from 'vue-router';
-import 'vue-material/dist/vue-material.css';
-import infiniteScroll from 'vue-infinite-scroll';
+import 'vue-material/dist/vue-material.min.css';
 import hljs from 'highlightjs';
 
 import './favicon.ico';
 import App from './App.vue';
-import Repo from './components/Repo.vue';
-import Repos from './components/Repos.vue';
+import DockerfileContext from './components/DockerfileContext.vue';
+import DockerfileContexts from './components/DockerfileContexts.vue';
 
 hljs.initHighlightingOnLoad();
 
-Vue.use(VueMaterial);
+Vue.use(MdApp);
+Vue.use(MdButton);
+Vue.use(MdCard);
 Vue.use(VueRouter);
-Vue.use(infiniteScroll);
 
 const router = new VueRouter({
     routes: [{
             path: '/',
-            component: Repos
+            component: DockerfileContexts
         },
         {
-            path: '/repos/:repoName',
-            component: Repo
+            path: '/contexts/:context',
+            component: DockerfileContext
         }
     ]
 });

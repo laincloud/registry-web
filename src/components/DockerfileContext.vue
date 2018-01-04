@@ -34,7 +34,7 @@
       </div>
     </main>
 
-    <md-progress md-indeterminate v-if="isLoading"></md-progress>
+    <md-progress-bar md-mode="query" v-if="isLoading"></md-progress-bar>
   </div>
 </template>
 
