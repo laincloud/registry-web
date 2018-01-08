@@ -4,21 +4,19 @@
       <h2 class="md-title" style="flex: 1;">基础镜像列表</h2>
     </md-toolbar>
 
-    <main v-infinite-scroll="getRepos"
-          infinite-scroll-disabled="isScrollDisabled"
-          infinite-scroll-distance="10">
+    <main>
       <div>
         <md-card v-for="repo in repos" :key="repo" md-with-hover>
           <md-card-header>
             <md-card-header-text>
               <div class="md-title">
-                {{ registryHost }}/{{ repo }}
+                {{ registryHost }}/library/{{ repo }}
               </div>
             </md-card-header-text>
 
             <md-card-actions>
               <router-link tag="md-button" class="md-raised md-primary"
-                           :to="'/repos/' + repo.replace('/', '_')">
+                           :to="'/repos/' + repo">
                 详情
               </router-link>
             </md-card-actions>
@@ -52,28 +50,23 @@
           getRepos: function () {
               this.isLoading = true;
               this.isScrollDisabled = true;
-              let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/_catalog?last=' + this.last;
-              url += '&n=' + REGISTRY_N;
+              let url = GITHUB_API_URL;
               console.info('url', url);
               axios.get(url)
                   .then(response => {
-                      let repos = response.data[REPOS_KEY];
-                      if (repos.length < 1) {
+                      let tree = response.data['tree'];
+                      if (tree.length < 1) {
                           this.isAllLoaded = true;
                           this.isLoading = false;
                           return;
                       }
 
-                      for (let i = 0; i < repos.length; i++) {
-                          if (!repos[i].startsWith(LIBRARY_PREFIX)) {
-                              this.isAllLoaded = true;
-                              break;
-                          }
-
-                          this.repos.push(repos[i]);
-
-                          if (i === (repos.length - 1)) {
-                              this.last = repos[i];
+                      for (let i = 0; i < tree.length; i++) {
+                          if (tree[i].path.indexOf('Dockerfile') !== -1 ) {
+                              let repo = tree[i].path.substring(0,tree[i].path.indexOf('/'));
+                              if (this.repos.indexOf(repo) === -1) {
+                                  this.repos.push(repo);
+                              }
                           }
                       }
                       this.isLoading = false;

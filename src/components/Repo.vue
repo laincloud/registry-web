@@ -15,7 +15,7 @@
             <md-card-header>
               <md-card-header-text>
                 <div class="md-title">
-                  {{ registryHost }}/{{ repoName }}:{{ tag.id }}
+                  {{ registryHost }}/library/{{ repoName }}:{{ tag.id }}
                 </div>
               </md-card-header-text>
             </md-card-header>
@@ -46,39 +46,45 @@
           return {
               isLoading: false,
               registryHost: REGISTRY_HOST,
-              repoName: this.$route.params.repoName.replace('_', '/'),
+              repoName: this.$route.params.repoName,
               tags: [],
           }
       },
       created () {
           this.isLoading = true;
-          let url = REGISTRY_SCHEME + '://' + REGISTRY_HOST + '/v2/' + this.repoName + '/tags/list';
+          let url = GITHUB_API_URL;
           console.info('url', url);
           axios.get(url)
               .then(response => {
-                  let tags = response.data['tags'];
-                  for (let i = 0; i < tags.length; i++) {
-                      url = DOCKERFILES_URL;
-                      url += this.repoName.replace('library', '');
-                      url += '/';
-                      url += tags[i];
-                      url += '/Dockerfile';
-                      console.info('url', url);
-                      axios.get(url)
-                          .then(response => {
-                              this.tags.push({
-                                  'id': tags[i],
-                                  'dockerfile': response.data
-                              });
-                              if (i === (tags.length - 1)) {
-                                  this.isLoading = false;
-                              }
-                          })
-                          .catch(e => {
-                              this.isLoading = false;
-                              console.error(e);
-                          });
+                  let tree = response.data['tree'];
+                  if (tree.length < 1) {
+                      this.isLoading = false;
+                      return;
                   }
+
+                  for (let i = 0; i < tree.length; i++) {
+                      if (tree[i].path.indexOf('Dockerfile') !== -1 && tree[i].path.indexOf(this.repoName+'/') !== -1 ) {
+                          url = DOCKERFILES_URL+tree[i].path;
+                          console.info('url', url);
+                          axios.get(url)
+                              .then(response => {
+                                  console.info('path',tree[i].path);
+                                  console.info('tag',tree[i].path.substring(this.repoName.length+1,tree[i].path.length-11));
+                                  this.tags.push({
+                                      'id': tree[i].path.substring(this.repoName.length+1,tree[i].path.length-11),
+                                      'dockerfile': response.data
+                                  });
+                                  if (i === (tree.length - 1)) {
+                                      this.isLoading = false;
+                                  }
+                              })
+                              .catch(e => {
+                                  this.isLoading = false;
+                                  console.error(e);
+                              });
+                      }
+                  }
+                  this.isLoading = false;
               })
               .catch(e => {
                   this.isLoading = false;

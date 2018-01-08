@@ -47,7 +47,8 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            DOCKERFILES_URL: JSON.stringify('https://raw.githubusercontent.com/laincloud/dockerfiles/master'),
+            GITHUB_API_URL: JSON.stringify('https://api.github.com/repos/laincloud/dockerfiles/git/trees/master?recursive=1'),
+            DOCKERFILES_URL: JSON.stringify('https://raw.githubusercontent.com/laincloud/dockerfiles/master/'),
             REPOS_KEY: JSON.stringify('repositories'),
             LIBRARY_PREFIX: JSON.stringify('library'),
             REGISTRY_N: JSON.stringify(100),
